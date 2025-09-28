@@ -1,6 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Merriweather, Rubik_Distressed } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header";
 
+// Default Geist fonts
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -8,6 +11,19 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+// New Google fonts
+const merriweather = Merriweather({
+  variable: "--font-merriweather",
+  weight: ["300", "400", "700", "900"], // choose weights you need
+  subsets: ["latin"],
+});
+
+const rubikDistressed = Rubik_Distressed({
+  variable: "--font-rubik-distressed",
+  weight: "400", // only one available for distressed
   subsets: ["latin"],
 });
 
@@ -20,8 +36,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${merriweather.variable} ${rubikDistressed.variable} antialiased`}
       >
+        <Header />
+
         {children}
       </body>
     </html>
