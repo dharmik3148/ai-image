@@ -58,7 +58,7 @@ const page = () => {
 
     try {
       const res = await axios.post(
-        "http://34.65.55.107/ai-image/text-to-image.php",
+        "https://popygames.com/ai-image/text-to-image.php",
         new URLSearchParams({ prompt: finalPrompt }),
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
