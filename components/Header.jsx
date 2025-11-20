@@ -10,7 +10,7 @@ const Header = () => {
 
   const AI_SERVICES = [
     { title: "AI Image", path: "/text-to-image" },
-    // { title: "Image Edit", path: "/image-to-image" },
+    { title: "Image Edit", path: "/image-to-image" },
   ];
 
   const NAV_LINKS = [
