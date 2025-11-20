@@ -29,8 +29,14 @@ const ImageToImagePage = () => {
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (!["image/jpeg", "image/png"].includes(file.type)) {
-        alert("Only images are allowed.");
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size too large. Please upload an image smaller than 5MB.");
+        return;
+      }
+      
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        alert("Only JPG, PNG, and WebP images are allowed.");
         return;
       }
       setSelectedImage(file);
@@ -53,8 +59,14 @@ const ImageToImagePage = () => {
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file) {
-      if (!["image/jpeg", "image/png"].includes(file.type)) {
-        alert("Only images are allowed.");
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size too large. Please upload an image smaller than 5MB.");
+        return;
+      }
+
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        alert("Only JPG, PNG, and WebP images are allowed.");
         return;
       }
       setSelectedImage(file);
@@ -101,26 +113,48 @@ const ImageToImagePage = () => {
         }
       );
 
-      // Check if the response is actually JSON (error)
-      if (
-        res.data.type === "application/json" ||
-        res.headers["content-type"]?.includes("application/json")
-      ) {
+      // Check if the response is an image
+      if (res.data.type.startsWith("image/")) {
+        const imgUrl = URL.createObjectURL(res.data);
+        setGeneratedImage(imgUrl);
+      } else {
+        // It's not an image, try to parse as JSON or text
         const text = await res.data.text();
         try {
           const json = JSON.parse(text);
-          alert(json.message || "Failed to generate image");
+          alert(json.message || "Server Error: " + JSON.stringify(json));
         } catch (e) {
-          alert("Failed to generate image: " + text);
+          // If parsing fails, it's likely HTML error (e.g. 413, 500)
+          console.error("Server returned non-JSON error:", text);
+          alert(`Server Error: ${text.substring(0, 150)}...`);
         }
-        return;
       }
-
-      const imgUrl = URL.createObjectURL(res.data);
-      setGeneratedImage(imgUrl);
     } catch (err) {
-      console.error("Generation failed:", err.message);
-      alert("Failed to generate image.");
+      console.error("Generation failed:", err);
+      if (err.response) {
+         // The request was made and the server responded with a status code
+         // that falls out of the range of 2xx
+         if (err.response.data instanceof Blob) {
+            try {
+                const text = await err.response.data.text();
+                try {
+                    const json = JSON.parse(text);
+                    alert(`Error: ${json.message || json.error || "Unknown error"}`);
+                } catch (e) {
+                    alert(`Server Error (${err.response.status}): ${text.substring(0, 150)}...`);
+                }
+            } catch (readErr) {
+                alert(`Request Failed (${err.response.status}): ${err.message}`);
+            }
+         } else {
+            alert(`Request Failed (${err.response.status}): ${err.message}`);
+         }
+      } else if (err.request) {
+         // The request was made but no response was received
+         alert("Network Error: No response received from server. Please check your connection.");
+      } else {
+         alert("Error: " + err.message);
+      }
     } finally {
       setLoading(false);
     }
