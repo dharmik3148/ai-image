@@ -177,8 +177,8 @@ const ImageToImagePage = () => {
             <input
               id="image-upload"
               type="file"
-              className="hidden"
-              accept="image/png, image/jpeg, image/webp"
+              className="opacity-0 absolute w-0 h-0 pointer-events-none"
+              accept="image/*"
               onChange={handleImageUpload}
             />
           </label>
